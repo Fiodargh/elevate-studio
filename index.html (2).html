@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elevate Studio — Premium Fitness</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #080808;
+  --white: #F0EDE8;
+  --accent: #E8FF00;
+  --gray: #1A1A1A;
+  --muted: #666;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed; z-index: 9999;
+  pointer-events: none;
+  transition: transform 0.1s;
+  mix-blend-mode: difference;
+}
+.cursor-follower {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(232,255,0,0.4);
+  border-radius: 50%;
+  position: fixed; z-index: 9998;
+  pointer-events: none;
+  transition: all 0.15s ease;
+  mix-blend-mode: difference;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.5rem 4rem;
+  mix-blend-mode: difference;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 0.1em;
+  color: var(--white);
+}
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  color: var(--white); text-decoration: none;
+  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+  opacity: 0.6; transition: opacity 0.3s;
+}
+.nav-links a:hover { opacity: 1; }
+.nav-join {
+  background: var(--accent); color: var(--black);
+  border: none; padding: 0.7rem 1.8rem;
+  font-family: var(--font-body); font-size: 0.75rem;
+  font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: none; transition: all 0.3s;
+}
+.nav-join:hover { transform: scale(1.05); }
+
+/* HERO */
+.hero {
+  height: 100vh; position: relative;
+  display: flex; align-items: flex-end;
+  padding: 0 4rem 4rem;
+  overflow: hidden;
+}
+
+/* CANVAS BG */
+#heroCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, rgba(8,8,8,0.3) 50%, transparent 100%);
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1rem;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s 0.3s forwards;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 15vw, 14rem);
+  line-height: 0.85; letter-spacing: 0.02em;
+  opacity: 0; transform: translateY(40px);
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.hero-title span { color: var(--accent); }
+
+.hero-bottom {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-top: 2rem;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s 0.7s forwards;
+}
+
+.hero-desc {
+  max-width: 400px;
+  font-size: 0.95rem; line-height: 1.7; color: rgba(240,237,232,0.6);
+}
+
+.hero-cta { display: flex; gap: 1rem; align-items: center; }
+
+.btn-accent {
+  background: var(--accent); color: var(--black);
+  border: none; padding: 1rem 2.5rem;
+  font-family: var(--font-body); font-size: 0.8rem;
+  font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: none; transition: all 0.3s; text-decoration: none;
+  display: inline-block;
+}
+.btn-accent:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(232,255,0,0.3); }
+
+.btn-outline {
+  background: none; color: var(--white);
+  border: 1px solid rgba(240,237,232,0.3);
+  padding: 1rem 2.5rem;
+  font-family: var(--font-body); font-size: 0.8rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: none; transition: all 0.3s; text-decoration: none;
+  display: inline-block;
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+.hero-scroll {
+  position: absolute; right: 4rem; bottom: 4rem; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--muted);
+  animation: fadeUp 0.8s 1s forwards; opacity: 0;
+}
+.hero-scroll::after {
+  content: ''; width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollLine 2s infinite;
+}
+@keyframes scrollLine {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* STATS */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(240,237,232,0.1);
+  border-bottom: 1px solid rgba(240,237,232,0.1);
+}
+.stat-item {
+  padding: 3rem 4rem;
+  border-right: 1px solid rgba(240,237,232,0.1);
+  transition: background 0.3s;
+}
+.stat-item:last-child { border-right: none; }
+.stat-item:hover { background: rgba(232,255,0,0.05); }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 4rem; line-height: 1;
+  color: var(--accent); margin-bottom: 0.3rem;
+}
+.stat-label { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+/* PROGRAMS */
+.programs { padding: 8rem 4rem; }
+.section-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 4rem;
+}
+.section-tag {
+  font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.8rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 0.9;
+}
+.section-title span { color: var(--accent); }
+.section-link {
+  color: var(--white); text-decoration: none;
+  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+  border-bottom: 1px solid rgba(240,237,232,0.3);
+  padding-bottom: 0.2rem;
+  transition: border-color 0.3s, color 0.3s;
+}
+.section-link:hover { color: var(--accent); border-color: var(--accent); }
+
+.programs-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: rgba(240,237,232,0.1);
+}
+.program-card {
+  background: var(--black); padding: 3rem;
+  position: relative; overflow: hidden;
+  cursor: none; transition: background 0.4s;
+}
+.program-card::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 0;
+  background: var(--accent);
+  transition: height 0.4s ease;
+  z-index: 0;
+}
+.program-card:hover::before { height: 100%; }
+.program-card:hover { background: var(--black); }
+.program-card:hover * { color: var(--black) !important; }
+.program-card > * { position: relative; z-index: 1; transition: color 0.4s; }
+
+.program-number {
+  font-family: var(--font-display);
+  font-size: 5rem; color: rgba(240,237,232,0.08);
+  line-height: 1; margin-bottom: 1.5rem;
+  transition: color 0.4s;
+}
+.program-card:hover .program-number { color: rgba(8,8,8,0.15) !important; }
+.program-name {
+  font-family: var(--font-display);
+  font-size: 2rem; margin-bottom: 1rem;
+}
+.program-desc { font-size: 0.85rem; line-height: 1.7; color: var(--muted); margin-bottom: 2rem; }
+.program-card:hover .program-desc { color: rgba(8,8,8,0.7) !important; }
+.program-duration {
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent);
+}
+.program-card:hover .program-duration { color: var(--black) !important; }
+
+/* TRAINERS */
+.trainers { padding: 4rem 4rem 8rem; }
+.trainers-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+  margin-top: 4rem;
+}
+.trainer-card { position: relative; overflow: hidden; }
+.trainer-img {
+  width: 100%; aspect-ratio: 3/4;
+  background: var(--gray);
+  position: relative; overflow: hidden;
+}
+.trainer-img::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 60%);
+  z-index: 1;
+}
+.trainer-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; opacity: 0.2;
+}
+.trainer-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s ease;
+  z-index: 2;
+}
+.trainer-card:hover .trainer-accent { transform: scaleX(1); }
+.trainer-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 1.5rem 2rem; z-index: 2;
+}
+.trainer-name {
+  font-family: var(--font-display);
+  font-size: 1.8rem; margin-bottom: 0.2rem;
+}
+.trainer-spec {
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* PRICING */
+.pricing { padding: 4rem 4rem 8rem; }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: rgba(240,237,232,0.1);
+  margin-top: 4rem;
+}
+.pricing-card {
+  background: var(--black); padding: 3rem;
+  position: relative; transition: background 0.3s;
+}
+.pricing-card.featured {
+  background: var(--accent);
+}
+.pricing-card.featured * { color: var(--black) !important; }
+.pricing-badge {
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--black); background: var(--black);
+  color: var(--accent); padding: 4px 10px;
+  display: inline-block; margin-bottom: 1.5rem;
+}
+.pricing-card.featured .pricing-badge {
+  background: var(--black); color: var(--accent);
+}
+.pricing-name {
+  font-family: var(--font-display);
+  font-size: 2rem; margin-bottom: 0.5rem;
+}
+.pricing-price {
+  font-family: var(--font-display);
+  font-size: 4.5rem; line-height: 1;
+  color: var(--accent); margin-bottom: 0.3rem;
+}
+.pricing-card.featured .pricing-price { color: var(--black); }
+.pricing-period { font-size: 0.75rem; color: var(--muted); margin-bottom: 2rem; }
+.pricing-card.featured .pricing-period { color: rgba(8,8,8,0.6); }
+.pricing-features { list-style: none; margin-bottom: 2.5rem; }
+.pricing-features li {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(240,237,232,0.1);
+  font-size: 0.85rem; color: rgba(240,237,232,0.7);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.pricing-card.featured .pricing-features li {
+  border-color: rgba(8,8,8,0.15);
+  color: rgba(8,8,8,0.8);
+}
+.pricing-features li::before { content: '—'; color: var(--accent); font-size: 0.7rem; }
+.pricing-card.featured .pricing-features li::before { color: var(--black); }
+.btn-pricing {
+  display: block; text-align: center; text-decoration: none;
+  padding: 1rem; font-family: var(--font-body);
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  transition: all 0.3s; cursor: none;
+  border: 1px solid rgba(240,237,232,0.3); color: var(--white);
+}
+.btn-pricing:hover { border-color: var(--accent); color: var(--accent); }
+.pricing-card.featured .btn-pricing {
+  background: var(--black); color: var(--accent);
+  border-color: var(--black);
+}
+
+/* JOIN */
+.join-section {
+  margin: 0 4rem 8rem;
+  background: var(--accent);
+  padding: 6rem;
+  display: flex; justify-content: space-between; align-items: center;
+  position: relative; overflow: hidden;
+}
+.join-section::before {
+  content: 'ELEVATE';
+  position: absolute; right: -2rem; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 15rem; line-height: 1;
+  color: rgba(8,8,8,0.08);
+  pointer-events: none;
+}
+.join-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  color: var(--black); line-height: 0.9;
+}
+.join-form { display: flex; gap: 0; }
+.join-input {
+  background: var(--black); border: none; outline: none;
+  padding: 1.2rem 2rem; color: var(--white);
+  font-family: var(--font-body); font-size: 0.85rem;
+  width: 300px;
+}
+.join-input::placeholder { color: var(--muted); }
+.join-btn {
+  background: var(--black); color: var(--accent);
+  border: none; padding: 1.2rem 2rem;
+  font-family: var(--font-body); font-size: 0.75rem;
+  font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: none; transition: all 0.3s; white-space: nowrap;
+}
+.join-btn:hover { background: #111; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid rgba(240,237,232,0.1);
+  padding: 3rem 4rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem; letter-spacing: 0.1em;
+}
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.75rem; letter-spacing: 0.1em;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-copy { font-size: 0.75rem; color: var(--muted); }
+
+@media (max-width: 900px) {
+  nav { padding: 1.5rem 2rem; }
+  .nav-links, .nav-join { display: none; }
+  .hero { padding: 0 2rem 3rem; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-item { padding: 2rem; }
+  .programs, .trainers, .pricing { padding: 4rem 2rem; }
+  .programs-grid, .trainers-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .join-section { margin: 0 2rem 4rem; padding: 3rem 2rem; flex-direction: column; gap: 2rem; }
+  .join-form { flex-direction: column; }
+  .join-input { width: 100%; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+  body { cursor: auto; }
+  .cursor, .cursor-follower { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<nav>
+  <div class="nav-logo">ELEVATE</div>
+  <ul class="nav-links">
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#trainers">Trainers</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#join">Contact</a></li>
+  </ul>
+  <button class="nav-join">Join Now</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Premium Fitness Studio · Est. 2018</div>
+    <h1 class="hero-title">PUSH YOUR<br><span>LIMITS</span></h1>
+    <div class="hero-bottom">
+      <p class="hero-desc">Transform your body and mind with our elite training programs. World-class coaches. State-of-the-art facilities. Zero excuses.</p>
+      <div class="hero-cta">
+        <a href="#join" class="btn-accent">Start Free Trial</a>
+        <a href="#programs" class="btn-outline">View Programs</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item">
+    <div class="stat-num" data-target="2400">0</div>
+    <div class="stat-label">Active Members</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="18">0</div>
+    <div class="stat-label">Expert Trainers</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="40">0</div>
+    <div class="stat-label">Weekly Classes</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="6">0</div>
+    <div class="stat-label">Years of Excellence</div>
+  </div>
+</div>
+
+<!-- PROGRAMS -->
+<section class="programs" id="programs">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">What We Offer</div>
+      <h2 class="section-title">OUR <span>PROGRAMS</span></h2>
+    </div>
+    <a href="#" class="section-link">View All Programs</a>
+  </div>
+  <div class="programs-grid">
+    <div class="program-card">
+      <div class="program-number">01</div>
+      <div class="program-name">Strength & Power</div>
+      <div class="program-desc">Build raw strength and explosive power through progressive overload training and Olympic lifting techniques.</div>
+      <div class="program-duration">60 min · All Levels</div>
+    </div>
+    <div class="program-card">
+      <div class="program-number">02</div>
+      <div class="program-name">HIIT & Cardio</div>
+      <div class="program-desc">High-intensity interval training that torches calories, boosts metabolism and builds cardiovascular endurance.</div>
+      <div class="program-duration">45 min · Intermediate</div>
+    </div>
+    <div class="program-card">
+      <div class="program-number">03</div>
+      <div class="program-name">Yoga & Mobility</div>
+      <div class="program-desc">Improve flexibility, balance and mental clarity through guided yoga flows and deep mobility work.</div>
+      <div class="program-duration">75 min · All Levels</div>
+    </div>
+    <div class="program-card">
+      <div class="program-number">04</div>
+      <div class="program-name">Boxing & MMA</div>
+      <div class="program-desc">Learn combat techniques while getting an incredible full-body workout. No experience required.</div>
+      <div class="program-duration">60 min · All Levels</div>
+    </div>
+    <div class="program-card">
+      <div class="program-number">05</div>
+      <div class="program-name">Body Transformation</div>
+      <div class="program-desc">12-week structured program combining nutrition coaching and personalized training for maximum results.</div>
+      <div class="program-duration">12 Weeks · Beginner</div>
+    </div>
+    <div class="program-card">
+      <div class="program-number">06</div>
+      <div class="program-name">Personal Training</div>
+      <div class="program-desc">One-on-one sessions with an elite coach fully dedicated to your individual goals and progress.</div>
+      <div class="program-duration">60 min · Any Level</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAINERS -->
+<section class="trainers" id="trainers">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">The Team</div>
+      <h2 class="section-title">ELITE <span>COACHES</span></h2>
+    </div>
+    <a href="#" class="section-link">Meet All Trainers</a>
+  </div>
+  <div class="trainers-grid">
+    <div class="trainer-card">
+      <div class="trainer-img">
+        <div class="trainer-placeholder">💪</div>
+        <div class="trainer-accent"></div>
+        <div class="trainer-info">
+          <div class="trainer-name">Marcus Reid</div>
+          <div class="trainer-spec">Strength & Power Coach</div>
+        </div>
+      </div>
+    </div>
+    <div class="trainer-card">
+      <div class="trainer-img">
+        <div class="trainer-placeholder">🥊</div>
+        <div class="trainer-accent"></div>
+        <div class="trainer-info">
+          <div class="trainer-name">Sofia Chen</div>
+          <div class="trainer-spec">Boxing & HIIT Specialist</div>
+        </div>
+      </div>
+    </div>
+    <div class="trainer-card">
+      <div class="trainer-img">
+        <div class="trainer-placeholder">🧘</div>
+        <div class="trainer-accent"></div>
+        <div class="trainer-info">
+          <div class="trainer-name">James Okafor</div>
+          <div class="trainer-spec">Yoga & Mobility Expert</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Membership</div>
+      <h2 class="section-title">SIMPLE <span>PRICING</span></h2>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-name">Starter</div>
+      <div class="pricing-price">$49</div>
+      <div class="pricing-period">per month</div>
+      <ul class="pricing-features">
+        <li>Gym access (6AM–10PM)</li>
+        <li>4 group classes/month</li>
+        <li>Locker room access</li>
+        <li>Fitness assessment</li>
+      </ul>
+      <a href="#join" class="btn-pricing">Get Started</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-badge">Most Popular</div>
+      <div class="pricing-name">Elite</div>
+      <div class="pricing-price">$89</div>
+      <div class="pricing-period">per month</div>
+      <ul class="pricing-features">
+        <li>24/7 gym access</li>
+        <li>Unlimited group classes</li>
+        <li>1 PT session/month</li>
+        <li>Nutrition consultation</li>
+        <li>Recovery zone access</li>
+      </ul>
+      <a href="#join" class="btn-pricing">Get Started</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-name">Pro</div>
+      <div class="pricing-price">$149</div>
+      <div class="pricing-period">per month</div>
+      <ul class="pricing-features">
+        <li>Everything in Elite</li>
+        <li>4 PT sessions/month</li>
+        <li>Custom meal plan</li>
+        <li>Body composition scans</li>
+        <li>Priority class booking</li>
+      </ul>
+      <a href="#join" class="btn-pricing">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<div class="join-section" id="join">
+  <div>
+    <h2 class="join-title">START YOUR<br>FREE TRIAL</h2>
+  </div>
+  <div>
+    <div class="join-form">
+      <input type="email" class="join-input" placeholder="Enter your email address">
+      <button class="join-btn" onclick="handleJoin()">Claim Free Trial</button>
+    </div>
+    <p style="font-size:0.7rem;color:rgba(8,8,8,0.5);margin-top:0.8rem;">7 days free. No credit card required.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">ELEVATE STUDIO</div>
+  <div class="footer-links">
+    <a href="#">Programs</a>
+    <a href="#">Trainers</a>
+    <a href="#">Pricing</a>
+    <a href="#">Schedule</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 Elevate Studio. All rights reserved.</div>
+</footer>
+
+<script>
+// CUSTOM CURSOR
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursorFollower');
+let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX - 5 + 'px';
+  cursor.style.top = mouseY - 5 + 'px';
+});
+
+function animateFollower() {
+  followerX += (mouseX - followerX - 20) * 0.12;
+  followerY += (mouseY - followerY - 20) * 0.12;
+  follower.style.left = followerX + 'px';
+  follower.style.top = followerY + 'px';
+  requestAnimationFrame(animateFollower);
+}
+animateFollower();
+
+// CANVAS PARTICLE ANIMATION
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const particles = [];
+const count = 80;
+
+for (let i = 0; i < count; i++) {
+  particles.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    size: Math.random() * 1.5 + 0.5,
+    opacity: Math.random() * 0.4 + 0.1
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(232,255,0,${0.08 * (1 - dist/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  
+  // Draw particles
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(232,255,0,${p.opacity})`;
+    ctx.fill();
+  });
+  
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// COUNTER ANIMATION
+function animateCounter(el, target) {
+  let current = 0;
+  const increment = target / 60;
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) { current = target; clearInterval(timer); }
+    el.textContent = Math.floor(current) + (target >= 100 ? '+' : '');
+  }, 25);
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('[data-target]').forEach(el => {
+        animateCounter(el, parseInt(el.dataset.target));
+      });
+      observer.disconnect();
+    }
+  });
+});
+observer.observe(document.querySelector('.stats'));
+
+// JOIN
+function handleJoin() {
+  const btn = document.querySelector('.join-btn');
+  const input = document.querySelector('.join-input');
+  if (!input.value) return;
+  btn.textContent = '✓ Welcome to Elevate!';
+  btn.style.background = '#080808';
+  setTimeout(() => {
+    btn.textContent = 'Claim Free Trial';
+    input.value = '';
+  }, 3000);
+}
+</script>
+</body>
+</html>
